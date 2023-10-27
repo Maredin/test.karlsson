@@ -4,19 +4,22 @@ import './Video.css';
 
 import imgQrCode from './img/qr.png';
 
-function Video( {data, setData} ) {
+function Video({ setData }) {
     const [showQr, setShowQr] = useState('-251px');
     const style = {
         right: showQr
     };
+
+    // Выезд QR блока
     setTimeout(() => {
         setShowQr('0px')
     }, 5000);
 
+    // Если значение тру, перерисовывает компонент на Promo
     function application() {
-        let newData = {application: true}
-        setData(newData);       
-	}
+        let newData = { application: true }
+        setData(newData);
+    }
 
     return (
         <div className="video">

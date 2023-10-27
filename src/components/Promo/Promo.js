@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import InputMask from 'react-input-mask';
 
 import useKeypress from 'react-use-keypress';
 
 import './Promo.css'
 
-
+// Маска ввода инпута
 function PhoneInput(props) {
 
     return (
@@ -20,25 +20,44 @@ function PhoneInput(props) {
     );
 }
 
+// Главный блок
 function Promo({ setData }) {
     const [error, setError] = useState(false);
     const [phone, setPhone] = useState('');
     const [checked, setChecked] = useState(false);
     const [formDone, setFormDone] = useState(false);
     const [checkedError, setCheckedError] = useState(false);
+    const [inaction, setInaction] = useState(true);
 
+    // Таймер закрытия через 10 сек без активности
+    useEffect(() => {
+        if (inaction) {
+            const timer = setTimeout(() => {
+                const newData = { application: false }
+                setData(newData);
+            }, 10000);
+            return () => {
+                clearTimeout(timer);
+            };
+        }
+    }, [inaction]);
+
+    // Обработчик ввода в инпут
     const handleInput = ({ target: { value } }) => {
         let res = value.replace(/\D/g, "").slice(1);
         setPhone(res);
         setError(false);
         setCheckedError(false);
+        setInaction(false)
     };
 
+    // Функция закрытия компонента Promo
     function close() {
         const newData = { application: false }
         setData(newData);
     }
 
+    // Функция нажатия на кнопки мышкой
     function btn(e) {
         if (phone.length < 10) {
             let btnNumb = e.target.textContent
@@ -46,19 +65,27 @@ function Promo({ setData }) {
             setPhone(newInput);
             setError(false);
             setCheckedError(false);
+            setInaction(false)
         }
     }
+
+    // Функция стирания инпупа
     function clearInput() {
         let newInput = phone;
         newInput = newInput.slice(0, -1);
         setPhone(newInput);
         setError(false);
+        setInaction(false)
     }
+
+    // Функция чекбокса на персональные данные
     function chengeCheckbox() {
         setChecked(!checked);
         setCheckedError(false);
+        setInaction(false)
     }
 
+    // Компонент Чекбокс
     function Checkbox() {
         return (
             <div className="promo__checkbox-wrapper">
@@ -68,6 +95,7 @@ function Promo({ setData }) {
         )
     }
 
+    // Компонент ошибки
     function Error() {
         return (
             <p className="promo__checkbox-error">
@@ -76,6 +104,7 @@ function Promo({ setData }) {
         )
     }
 
+    // Функция отправки формы
     function submitPhone(e) {
         e.preventDefault();
         if (phone.length < 10 || phone == false) {
@@ -89,8 +118,12 @@ function Promo({ setData }) {
         if (checked && phone.length == 10 && phone) {
             setFormDone(true);
         }
+        setInaction(false)
     }
+
+    // Нажатие кнопки влево на клавиатуре
     useKeypress('ArrowLeft', () => {
+        setInaction(false)
         let res = document.querySelectorAll('.promo__number-btn');
 
         for (let i = 0; i < res.length; i++) {
@@ -102,26 +135,31 @@ function Promo({ setData }) {
             }
 
         }
-
     });
+
+    // Нажатие кнопки вверх на клавиатуре
     useKeypress('ArrowUp', () => {
+        setInaction(false)
         let res = document.querySelectorAll('.promo__number-btn');
 
         for (let i = 0; i < res.length; i++) {
             if (res[i].classList.contains('promo__number-btn-activ')) {
-                if (i > 2 && i !== 9) {
+                if (i > 2 && i !== 10) {
                     res[i - 3].classList.add('promo__number-btn-activ');
                     res[i].classList.remove('promo__number-btn-activ');
                 }
-                if (i == 9) {
-                    res[i - 1].classList.add('promo__number-btn-activ');
+                if (i === 10) {
+                    res[i - 2].classList.add('promo__number-btn-activ');
                     res[i].classList.remove('promo__number-btn-activ');
                 }
 
             }
         }
     });
+
+    // Нажатие кнопки вправо на клавиатуре
     useKeypress('ArrowRight', () => {
+        setInaction(false)
         let res = document.querySelectorAll('.promo__number-btn');
         for (let i = 0; i < res.length; i++) {
             if (res[i].classList.contains('promo__number-btn-activ')) {
@@ -133,7 +171,10 @@ function Promo({ setData }) {
             }
         }
     });
+
+    // Нажатие кнопки вниз на клавиатуре
     useKeypress('ArrowDown', () => {
+        setInaction(false)
         let res = document.querySelectorAll('.promo__number-btn');
         for (let i = 0; i < res.length; i++) {
             if (res[i].classList.contains('promo__number-btn-activ')) {
@@ -141,25 +182,40 @@ function Promo({ setData }) {
                     res[i + 3].classList.add('promo__number-btn-activ');
                     res[i].classList.remove('promo__number-btn-activ');
                 }
-                if (i == 8) {
-                    res[i + 1].classList.add('promo__number-btn-activ');
+                if (i === 7) {
+                    res[i + 2].classList.add('promo__number-btn-activ');
+                    res[i].classList.remove('promo__number-btn-activ');
+                }
+                if (i === 8) {
+                    res[i + 2].classList.add('promo__number-btn-activ');
                     res[i].classList.remove('promo__number-btn-activ');
                 }
                 return
             }
         }
+
     });
+
+    // Нажатие кнопки бакспасе на клавиатуре
     useKeypress('Backspace', () => {
-        clearInput()
+        clearInput();
+        setInaction(false);
     });
+
+    // Нажатие кнопки энтер на клавиатуре
     useKeypress('Enter', () => {
+        setInaction(false);
         let res = document.querySelectorAll('.promo__number-btn');
 
         for (let i = 0; i < res.length; i++) {
             if (res[i].classList.contains('promo__number-btn-activ')) {
-                let newNumber = phone + res[i].textContent
-                if (phone.length < 10) {
-                    setPhone(newNumber)
+                if (i === 9) {
+                    clearInput();
+                } else {
+                    let newNumber = phone + res[i].textContent
+                    if (phone.length < 10) {
+                        setPhone(newNumber)
+                    }
                 }
             }
         }
@@ -206,7 +262,7 @@ function Promo({ setData }) {
                         <div className="promo__number-btn" onClick={btn}>7</div>
                         <div className="promo__number-btn" onClick={btn}>8</div>
                         <div className="promo__number-btn" onClick={btn}>9</div>
-                        <div className="promo__number-clear" onClick={clearInput}>Стереть</div>
+                        <div className="promo__number-btn promo__number-clear" onClick={clearInput}>Стереть</div>
                         <div className="promo__number-btn" onClick={btn}>0</div>
                     </div>
 
